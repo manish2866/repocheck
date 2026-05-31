@@ -4,33 +4,46 @@ Scan any git repo locally and get a colored report of common hygiene problems be
 
 ## Install
 
+Clone the repo, install dependencies, and build:
+
 ```bash
-npm install -g repocheck
+git clone https://github.com/manish2866/repocheck.git
+cd repocheck
+npm install
+npm run build
 ```
 
-Or run without installing:
+Optional: link it globally so you can run `repocheck` from anywhere:
 
 ```bash
-npx repocheck .
+npm link
 ```
 
 ## Usage
 
+From the repocheck directory (after `npm run build`):
+
 ```bash
 # Scan current directory
-repocheck .
+npm start -- .
 
 # Scan another repo
-repocheck ../my-other-project
+npm start -- ../my-other-project
 
 # Show fix suggestions
-repocheck . --fix-hints
+npm start -- . --fix-hints
 
 # JSON output for scripts
-repocheck . --json
+npm start -- . --json
 
 # Fail on warnings too (useful in CI)
-repocheck . --severity warn
+npm start -- . --severity warn
+```
+
+If you ran `npm link`, you can use `repocheck` instead of `npm start --`:
+
+```bash
+repocheck . --fix-hints
 ```
 
 ## Example output
@@ -92,16 +105,25 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npx repocheck . --severity error --fix-hints
+      - name: Install repocheck
+        run: |
+          git clone --depth 1 https://github.com/manish2866/repocheck.git /tmp/repocheck
+          cd /tmp/repocheck && npm ci && npm run build
+      - run: node /tmp/repocheck/dist/cli.js . --severity error --fix-hints
 ```
 
 ## Development
 
 ```bash
 npm install
-npm run dev -- .
 npm run build
 npm start -- .
+```
+
+For quick iteration during development:
+
+```bash
+npm run dev -- .
 ```
 
 ## Adding a check
